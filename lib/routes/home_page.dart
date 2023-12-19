@@ -1,5 +1,8 @@
 import 'package:carousel_slider/carousel_slider.dart';
+import 'package:demo_shopping/models/shop_model.dart';
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 
 import '../constant/constant.dart';
 
@@ -17,21 +20,21 @@ final List<String> imgListLabels = [
 
 // images to widget
 final List<Widget> imageSliders = imgList
-    .map(
-      (item) => Container(
-        // margin: const EdgeInsets.all(5.0),
-        margin: const EdgeInsets.symmetric(vertical: 20),
-        child: ClipRRect(
-          borderRadius: const BorderRadius.all(Radius.circular(10.0)),
-          child: Image.network(
-            item,
-            fit: BoxFit.fill,
-            width: 1000,
-          ),
+  .map(
+    (item) => Container(
+      // margin: const EdgeInsets.all(5.0),
+      margin: const EdgeInsets.symmetric(vertical: 20),
+      child: ClipRRect(
+        borderRadius: const BorderRadius.all(Radius.circular(10.0)),
+        child: Image.network(
+          item,
+          fit: BoxFit.fill,
+          width: 1000,
         ),
       ),
-    )
-    .toList();
+    ),
+  )
+  .toList();
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -41,6 +44,40 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
+  // initial list for ignore error
+  List<Product> products = [
+    Product(
+      id: 2315,
+      title: "Fjallraven - Foldsack No. 1 Backpack, Fits 15 Laptops",
+      price: 109.95,
+      description: "Your perfect pack for everyday use and walks in the forest. Stash your laptop (up to 15 inches) in the padded sleeve, your everyday",
+      category:"men's clothing",
+      image:"https://fakestoreapi.com/img/81fPKd-2AYL._AC_SL1500_.jpg",
+      rating: <String, dynamic>{
+        'rate': 3.9,
+        'count': 120,
+      },
+    ),
+  ];
+
+  Future<void> _fetchPosts() async {
+    final response = await http.get(Uri.parse(aPI));
+    if (response.statusCode == 200) {
+      final List<dynamic> data = json.decode(response.body);
+      setState(() {
+        products = data.map((e) => Product.fromJson(e)).toList();
+      });
+    } else {
+      throw Exception("Failed to load the data :)");
+    }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchPosts();
+  }
+
   Widget returnOfferRow(Color color) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 20),
@@ -71,9 +108,21 @@ class _HomePageState extends State<HomePage> {
                     borderRadius: BorderRadius.circular(10),
                     color: Colors.white,
                   ),
-                  child: const SizedBox(
+                  child: SizedBox(
                     height: 200,
                     width: 170,
+                    child: Column(
+                      children: [
+                        SizedBox(
+                          width: 150,
+                          height: 50,
+                          child: ClipRRect(
+                            borderRadius: BorderRadius.circular(10),
+                            child: Image.network(products[index].image),
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
               );
