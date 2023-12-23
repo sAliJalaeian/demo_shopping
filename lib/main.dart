@@ -2,7 +2,7 @@ import 'package:demo_shopping/routes/bottom_nav.dart';
 import 'package:flutter/material.dart';
 
 void main() async {
-  runApp(await const MyApp());
+  runApp(const MyApp());
 }
 
 class MyApp extends StatelessWidget {
