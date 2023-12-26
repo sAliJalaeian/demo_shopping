@@ -66,36 +66,34 @@ class _BottomNavState extends State<BottomNav> {
         unselectedItemColor: Colors.grey,
         currentIndex: selectedIndex,
         onTap: _onItemTapped,
+        selectedIconTheme: const IconThemeData(
+          color: Colors.black,
+        ),
+        unselectedIconTheme: const IconThemeData(
+          color: Colors.grey,
+        ),
         items: const [
           BottomNavigationBarItem(
-            backgroundColor: Colors.white,
             icon: Icon(
               FontAwesomeIcons.house,
-              color: Colors.black,
             ),
             label: "خانه ",
           ),
           BottomNavigationBarItem(
-            backgroundColor: Colors.white,
             icon: Icon(
               Icons.account_tree_outlined,
-              color: Colors.black,
             ),
             label: "دسته بندی ها",
           ),
           BottomNavigationBarItem(
-            backgroundColor: Colors.white,
             icon: Icon(
               FontAwesomeIcons.cartShopping,
-              color: Colors.black,
             ),
             label: "سبد خرید",
           ),
           BottomNavigationBarItem(
-            backgroundColor: Colors.white,
             icon: Icon(
               FontAwesomeIcons.userGroup,
-              color: Colors.black,
             ),
             label: "حساب کاربری",
           ),

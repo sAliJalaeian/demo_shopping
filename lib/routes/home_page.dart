@@ -1,5 +1,7 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:demo_shopping/models/shop_model.dart';
+import 'package:demo_shopping/routes/cart_page.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
@@ -22,12 +24,11 @@ final List<String> imgListLabels = [
 final List<Widget> imageSliders = imgList
   .map(
     (item) => Container(
-      // margin: const EdgeInsets.all(5.0),
       margin: const EdgeInsets.symmetric(vertical: 20),
       child: ClipRRect(
         borderRadius: const BorderRadius.all(Radius.circular(10.0)),
-        child: Image.network(
-          item,
+        child: CachedNetworkImage(
+          imageUrl: item,
           fit: BoxFit.fill,
           width: 1000,
         ),
@@ -45,22 +46,23 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   // initial list for ignore error
-  List<Product> products = [
-    Product(
-      id: 2315,
-      title: "Fjallraven - Foldsack No. 1 Backpack, Fits 15 Laptops",
-      price: 109.95,
-      description: "Your perfect pack for everyday use and walks in the forest. Stash your laptop (up to 15 inches) in the padded sleeve, your everyday",
-      category:"men's clothing",
-      image:"https://fakestoreapi.com/img/81fPKd-2AYL._AC_SL1500_.jpg",
+  List<Product> products = List.generate(
+    20,
+    (index) => Product(
+      id: index,
+      title: "---",
+      price: 0,
+      description: "---",
+      category:"---",
+      image:"https://static.vecteezy.com/system/resources/thumbnails/011/299/153/small/simple-loading-or-buffering-icon-design-png.png",
       rating: <String, dynamic>{
-        'rate': 3.9,
-        'count': 120,
+        'rate': 0,
+        'count': 0,
       },
     ),
-  ];
+  );
 
-  Future<void> _fetchPosts() async {
+  Future _fetchPosts() async {
     final response = await http.get(Uri.parse(aPI));
     if (response.statusCode == 200) {
       final List<dynamic> data = json.decode(response.body);
@@ -76,6 +78,11 @@ class _HomePageState extends State<HomePage> {
   void initState() {
     super.initState();
     _fetchPosts();
+    Future.delayed(
+      const Duration(milliseconds: 1000),
+          () => 100,
+    );
+    // _getImage();
   }
 
   Widget returnOfferRow(Color color) {
@@ -94,7 +101,6 @@ class _HomePageState extends State<HomePage> {
                 padding: const EdgeInsets.symmetric(horizontal: 25),
                 child: Container(
                   color: color,
-                  // color: Colors.white,
                   width: 70,
                   height: 75,
                 ),
@@ -113,12 +119,101 @@ class _HomePageState extends State<HomePage> {
                     width: 170,
                     child: Column(
                       children: [
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          children: [
+                            /************* blue buttom for add to cart *************/
+                            GestureDetector(
+                              // TODO: fix on tap
+                              onTap: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => const CartPage(),
+                                  ),
+                                );
+                              },
+                              child: Padding(
+                                padding: const EdgeInsets.only(right: 2),
+                                child: Container(
+                                  width: 30,
+                                  height: 30,
+                                  decoration: const BoxDecoration(
+                                    shape: BoxShape.circle,
+                                    color: Colors.blueAccent,
+                                  ),
+                                  child: const Icon(
+                                    Icons.add,
+                                    color: Colors.white,
+                                    size: 20,
+                                  ),
+                                ),
+                              ),
+                            ),
+                            /************* show image of products *************/
+                            Padding(
+                              padding: const EdgeInsets.only(top: 10, right: 10, bottom: 15),
+                              child: SizedBox(
+                                width: 90,
+                                height: 75,
+                                child: ClipRRect(
+                                  borderRadius: BorderRadius.circular(10),
+                                  child: CachedNetworkImage(
+                                    imageUrl: products[index - 1].image,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                        /************* show title of products *************/
                         SizedBox(
-                          width: 90,
-                          height: 75,
-                          child: ClipRRect(
-                            borderRadius: BorderRadius.circular(10),
-                            child: Image.network(products[index].image),
+                          width: 140,
+                          height: 60,
+                          child: Text(
+                            textDirection: TextDirection.ltr, //for english title
+                            textAlign: TextAlign.center, //center the text
+                            maxLines: 2,
+                            products[index - 1].title,
+                            style: const TextStyle(
+                              fontSize: 12,
+                              fontWeight: FontWeight.bold,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.only(top: 25),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Container(
+                                height: 20,
+                                width: 35,
+                                margin: const EdgeInsets.only(left: 5, right: 5),
+                                decoration: const BoxDecoration(
+                                  color: Color(0xffEF3F3E),
+                                  borderRadius: BorderRadius.all(Radius.elliptical(100, 100)),
+                                ),
+                                child: const Padding(
+                                  padding: EdgeInsets.only(top: 2),
+                                  child: Text(
+                                    '7%',
+                                    textAlign: TextAlign.center,
+                                    style: TextStyle(
+                                      color: Colors.white,
+                                      fontFamily: 'IranYekan',
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              Padding(
+                                padding: const EdgeInsets.only(left: 8),
+                                child: Text(
+                                  "\$ ${products[index - 1].price}",
+                                ),
+                              ),
+                            ],
                           ),
                         ),
                       ],
@@ -151,6 +246,7 @@ class _HomePageState extends State<HomePage> {
             items: imageSliders,
           );
         } else if (index == 1) {
+          /************* row under slider *************/
           return Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
@@ -161,8 +257,8 @@ class _HomePageState extends State<HomePage> {
                     height: 50,
                     child: ClipRRect(
                       borderRadius: BorderRadius.circular(10),
-                      child: Image.network(
-                        "https://dkstatics-public.digikala.com/digikala-bellatrix/d0dc31c892be8cf1408e4e14580b3f479da66bd1_1648897133.png",
+                      child: CachedNetworkImage(
+                        imageUrl: "https://dkstatics-public.digikala.com/digikala-bellatrix/d0dc31c892be8cf1408e4e14580b3f479da66bd1_1648897133.png",
                       ),
                     ),
                   ),
@@ -179,8 +275,8 @@ class _HomePageState extends State<HomePage> {
                     height: 50,
                     child: ClipRRect(
                       borderRadius: BorderRadius.circular(10),
-                      child: Image.network(
-                        "https://dkstatics-public.digikala.com/digikala-bellatrix/625d8883f37944f3f0c4af5fe39435600931ab22_1664309850.png",
+                      child: CachedNetworkImage(
+                        imageUrl: "https://dkstatics-public.digikala.com/digikala-bellatrix/625d8883f37944f3f0c4af5fe39435600931ab22_1664309850.png",
                       ),
                     ),
                   ),
@@ -213,8 +309,8 @@ class _HomePageState extends State<HomePage> {
                     height: 50,
                     child: ClipRRect(
                       borderRadius: BorderRadius.circular(10),
-                      child: Image.network(
-                        "https://dkstatics-public.digikala.com/digikala-bellatrix/78ccd40cbf305fb067de78ddab5be84f69589c8d_1648897009.png",
+                      child: CachedNetworkImage(
+                        imageUrl: "https://dkstatics-public.digikala.com/digikala-bellatrix/78ccd40cbf305fb067de78ddab5be84f69589c8d_1648897009.png",
                       ),
                     ),
                   ),
@@ -241,8 +337,8 @@ class _HomePageState extends State<HomePage> {
                     height: 150,
                     child: ClipRRect(
                       borderRadius: BorderRadius.circular(10),
-                      child: Image.network(
-                        imgListLabels[0],
+                      child: CachedNetworkImage(
+                        imageUrl: imgListLabels[0],
                         fit: BoxFit.fill,
                       ),
                     ),
@@ -252,8 +348,8 @@ class _HomePageState extends State<HomePage> {
                     height: 150,
                     child: ClipRRect(
                       borderRadius: BorderRadius.circular(10),
-                      child: Image.network(
-                        imgListLabels[1],
+                      child: CachedNetworkImage(
+                        imageUrl: imgListLabels[1],
                         fit: BoxFit.fill,
                       ),
                     ),
@@ -294,8 +390,8 @@ class _HomePageState extends State<HomePage> {
                             SizedBox(
                               width: sizeOfPicture,
                               height: sizeOfPicture,
-                              child: Image.network(
-                                  "https://dkstatics-public.digikala.com/digikala-categories/510816e9ec4cbfad2edbff2763e2059a504e571b_1701193038.png"),
+                              child: CachedNetworkImage(
+                                  imageUrl: "https://dkstatics-public.digikala.com/digikala-categories/510816e9ec4cbfad2edbff2763e2059a504e571b_1701193038.png"),
                             ),
                             const Text("موبایل"),
                           ],
@@ -310,8 +406,8 @@ class _HomePageState extends State<HomePage> {
                             SizedBox(
                               width: sizeOfPicture,
                               height: sizeOfPicture,
-                              child: Image.network(
-                                  "https://dkstatics-public.digikala.com/digikala-categories/ba175c709e3cc22e3fd7c65c7c6a21854d1c3765_1701193047.png"),
+                              child: CachedNetworkImage(
+                                  imageUrl: "https://dkstatics-public.digikala.com/digikala-categories/ba175c709e3cc22e3fd7c65c7c6a21854d1c3765_1701193047.png"),
                             ),
                             const Text("کالای دیجیتال"),
                           ],
@@ -326,8 +422,8 @@ class _HomePageState extends State<HomePage> {
                             SizedBox(
                               width: sizeOfPicture,
                               height: sizeOfPicture,
-                              child: Image.network(
-                                  "https://dkstatics-public.digikala.com/digikala-categories/3e3ec550569f974bc7e9d78c30b48612e5b1c606_1701193057.png"),
+                              child: CachedNetworkImage(
+                                  imageUrl: "https://dkstatics-public.digikala.com/digikala-categories/3e3ec550569f974bc7e9d78c30b48612e5b1c606_1701193057.png"),
                             ),
                             const Text("خانه و آشپزخانه"),
                           ],
@@ -350,8 +446,8 @@ class _HomePageState extends State<HomePage> {
                             SizedBox(
                               width: sizeOfPicture,
                               height: sizeOfPicture,
-                              child: Image.network(
-                                  "https://dkstatics-public.digikala.com/digikala-categories/1fad42c6177e71db1a368e258c5bc004d6073a3a_1701193064.png"),
+                              child: CachedNetworkImage(
+                                  imageUrl: "https://dkstatics-public.digikala.com/digikala-categories/1fad42c6177e71db1a368e258c5bc004d6073a3a_1701193064.png"),
                             ),
                             const Text("مد و پوشاک"),
                           ],
@@ -366,8 +462,8 @@ class _HomePageState extends State<HomePage> {
                             SizedBox(
                               width: sizeOfPicture,
                               height: sizeOfPicture,
-                              child: Image.network(
-                                  "https://dkstatics-public.digikala.com/digikala-categories/5f3aa7bb8bde7c7433d31025d508ee3afd367773_1701193071.png"),
+                              child: CachedNetworkImage(
+                                  imageUrl: "https://dkstatics-public.digikala.com/digikala-categories/5f3aa7bb8bde7c7433d31025d508ee3afd367773_1701193071.png"),
                             ),
                             const Text("کالاهای سوپرمارکتی"),
                           ],
@@ -382,8 +478,8 @@ class _HomePageState extends State<HomePage> {
                             SizedBox(
                               width: sizeOfPicture,
                               height: sizeOfPicture,
-                              child: Image.network(
-                                  "https://dkstatics-public.digikala.com/digikala-categories/f1ff29c0399fdbeef7cef44bf6ec897f31287449_1701193077.png"),
+                              child: CachedNetworkImage(
+                                  imageUrl: "https://dkstatics-public.digikala.com/digikala-categories/f1ff29c0399fdbeef7cef44bf6ec897f31287449_1701193077.png"),
                             ),
                             const Text("کتاب، لوازم تحریر و هنر"),
                           ],
@@ -406,8 +502,8 @@ class _HomePageState extends State<HomePage> {
                             SizedBox(
                               width: sizeOfPicture,
                               height: sizeOfPicture,
-                              child: Image.network(
-                                  "https://dkstatics-public.digikala.com/digikala-categories/dee082825fa27bf216cc8cf2153745062c29e62d_1701193085.png"),
+                              child: CachedNetworkImage(
+                                  imageUrl: "https://dkstatics-public.digikala.com/digikala-categories/dee082825fa27bf216cc8cf2153745062c29e62d_1701193085.png"),
                             ),
                             const Text("اسباب بازی، کودک و نوزاد"),
                           ],
@@ -422,8 +518,8 @@ class _HomePageState extends State<HomePage> {
                             SizedBox(
                               width: sizeOfPicture,
                               height: sizeOfPicture,
-                              child: Image.network(
-                                  "https://dkstatics-public.digikala.com/digikala-categories/c2957abd1f437415eceb6428c7dce93ef3ee7495_1701193097.png"),
+                              child: CachedNetworkImage(
+                                  imageUrl: "https://dkstatics-public.digikala.com/digikala-categories/c2957abd1f437415eceb6428c7dce93ef3ee7495_1701193097.png"),
                             ),
                             const Text("زیبایی و سلامت"),
                           ],
@@ -442,15 +538,18 @@ class _HomePageState extends State<HomePage> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               const Padding(
-                padding: EdgeInsets.only(top: 8),
+                padding: EdgeInsets.only(top: 8, right: 10),
                 child: Text(
                   "پرفروش ترین ها",
                   style: TextStyle(fontSize: 20, color: Colors.black),
                 ),
               ),
-              const Text(
-                "محصولات پر فروش ماه",
-                style: TextStyle(fontSize: 12, color: Colors.grey),
+              const Padding(
+                padding: EdgeInsets.only(right: 10),
+                child: Text(
+                  "محصولات پر فروش ماه",
+                  style: TextStyle(fontSize: 12, color: Colors.grey),
+                ),
               ),
               Padding(
                 padding: const EdgeInsets.symmetric(vertical: 10),
@@ -462,16 +561,116 @@ class _HomePageState extends State<HomePage> {
                     itemCount: 6,
                     itemBuilder: (context, index) {
                       return Padding(
-                        padding: const EdgeInsets.symmetric(
-                            vertical: 10, horizontal: 12),
+                        padding:
+                        const EdgeInsets.symmetric(vertical: 10, horizontal: 12),
                         child: Container(
                           decoration: BoxDecoration(
                             borderRadius: BorderRadius.circular(10),
                             color: Colors.white,
                           ),
-                          child: const SizedBox(
+                          child: SizedBox(
                             height: 200,
                             width: 170,
+                            child: Column(
+                              children: [
+                                Row(
+                                  mainAxisAlignment: MainAxisAlignment.start,
+                                  children: [
+                                    /************* blue buttom for add to cart *************/
+                                    GestureDetector(
+                                      // TODO: fix on tap
+                                      onTap: () {
+                                        Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                            builder: (context) => const CartPage(),
+                                          ),
+                                        );
+                                      },
+                                      child: Padding(
+                                        padding: const EdgeInsets.only(right: 2),
+                                        child: Container(
+                                          width: 30,
+                                          height: 30,
+                                          decoration: const BoxDecoration(
+                                            shape: BoxShape.circle,
+                                            color: Colors.blueAccent,
+                                          ),
+                                          child: const Icon(
+                                            Icons.add,
+                                            color: Colors.white,
+                                            size: 20,
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                    /************* show image of products *************/
+                                    Padding(
+                                      padding: const EdgeInsets.only(top: 10, right: 10, bottom: 15),
+                                      child: SizedBox(
+                                        width: 90,
+                                        height: 75,
+                                        child: ClipRRect(
+                                          borderRadius: BorderRadius.circular(10),
+                                          child: CachedNetworkImage(
+                                            imageUrl: products[index].image,
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                /************* show title of products *************/
+                                SizedBox(
+                                  width: 140,
+                                  height: 60,
+                                  child: Text(
+                                    textDirection: TextDirection.ltr, //for english title
+                                    textAlign: TextAlign.center, //center the text
+                                    maxLines: 2,
+                                    products[index].title,
+                                    style: const TextStyle(
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.bold,
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
+                                  ),
+                                ),
+                                Padding(
+                                  padding: const EdgeInsets.only(top: 25),
+                                  child: Row(
+                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      Container(
+                                        height: 20,
+                                        width: 35,
+                                        margin: const EdgeInsets.only(top: 5, left: 5, right: 5),
+                                        decoration: const BoxDecoration(
+                                          color: Color(0xffEF3F3E),
+                                          borderRadius: BorderRadius.all(Radius.elliptical(100, 100)),
+                                        ),
+                                        child: const Padding(
+                                          padding: EdgeInsets.only(top: 2),
+                                          child: Text(
+                                            '7%',
+                                            textAlign: TextAlign.center,
+                                            style: TextStyle(
+                                              color: Colors.white,
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                      Padding(
+                                        padding: const EdgeInsets.only(left: 8),
+                                        child: Text(
+                                          "\$ ${products[index].price}",
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            ),
                           ),
                         ),
                       );
@@ -480,6 +679,21 @@ class _HomePageState extends State<HomePage> {
                 ),
               ),
             ],
+          );
+        } else if (index == 7) {
+          return Padding(
+            padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 5),
+            child: SizedBox(
+              width: MediaQuery.of(context).size.width,
+              height: 170,
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(10),
+                child: CachedNetworkImage(
+                  imageUrl: "https://dkstatics-public.digikala.com/digikala-adservice-banners/8856efbb626ac47de8246cac983fc88c25412b7d_1703501848.jpg?x-oss-process=image/quality,q_95/format,webp",
+                  fit: BoxFit.fill,
+                ),
+              ),
+            ),
           );
         } else {
           return Padding(

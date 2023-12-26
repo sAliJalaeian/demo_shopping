@@ -38,6 +38,7 @@ dependencies:
   carousel_slider: ^4.2.1
   font_awesome_flutter: ^10.6.0
   http: ^1.1.0
+  cached_network_image: ^3.3.0
 
 dev_dependencies:
   flutter_test:
@@ -88,13 +89,13 @@ flutter:
           weight: 400
     - family: IranYekan
       fonts:
-        - asset: assets/fonts/IRANYekanMobileBold.ttf
+        - asset: assets/fonts/IRANYekanBoldFaNum.ttf
           weight: 700
-        - asset: assets/fonts/IRANYekanMobileRegular.ttf
+        - asset: assets/fonts/IRANYekanRegularFaNum.ttf
           weight: 600
-        - asset: assets/fonts/IRANYekanMobileMedium.ttf
+        - asset: assets/fonts/IRANYekanMediumFaNum.ttf
           weight: 500
-        - asset: assets/fonts/IRANYekanMobileLight.ttf
+        - asset: assets/fonts/IRANYekanLightFaNum.ttf
           weight: 400
   #   - family: Trajan Pro
   #     fonts:
